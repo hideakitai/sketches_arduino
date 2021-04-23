@@ -5,13 +5,50 @@
 // This sketch shows how to implement HTTPS firmware update Over The Air.
 // Please provide your WiFi credentials, https URL to the firmware image and the server certificate.
 
-static const char* ssid = "your-ssid";          // your network SSID (name of wifi network)
-static const char* password = "your-password";  // your network password
-const char* HOST = "192.168.24.74";
-static const char* url = "https://192.168.24.74:443/bin/firmware.bin";  //state url of your firmware image
+static const char* ssid = "Guest56294";         // your network SSID (name of wifi network)
+static const char* password = "8977038737619";  // your network password
+// const char* HOST = "192.168.24.74";
+const char* HOST = "hidden-sea-35212.herokuapp.com";
+// static const char* url = "https://192.168.24.74:443/bin/firmware.bin";  //state url of your firmware image
+static const char* url = "https://hidden-sea-35212.herokuapp.com/bin/firmware.bin";  //state url of your firmware image
 
 static const char* server_certificate =
     "-----BEGIN CERTIFICATE-----\n"
+    "MIIGZjCCBU6gAwIBAgIQDVfRCxEpKjxm383POui+ZTANBgkqhkiG9w0BAQsFADBw\n"
+    "MQswCQYDVQQGEwJVUzEVMBMGA1UEChMMRGlnaUNlcnQgSW5jMRkwFwYDVQQLExB3\n"
+    "d3cuZGlnaWNlcnQuY29tMS8wLQYDVQQDEyZEaWdpQ2VydCBTSEEyIEhpZ2ggQXNz\n"
+    "dXJhbmNlIFNlcnZlciBDQTAeFw0yMDA2MTUwMDAwMDBaFw0yMTA3MDcxMjAwMDBa\n"
+    "MGsxCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1T\n"
+    "YW4gRnJhbmNpc2NvMRUwEwYDVQQKEwxIZXJva3UsIEluYy4xGDAWBgNVBAMMDyou\n"
+    "aGVyb2t1YXBwLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMnN\n"
+    "1rH4ObYuY5NHb+xV4VV30Z+dxpkScWFWyi4yN86eTOA99A9FduC00UDgtMwaDD/r\n"
+    "6LVftlaY0ymKKa4+O24PEH5MrqR919yJNS2i+llJ0xQHthlKsW9GHuyyeOi6ZpK7\n"
+    "cPGuatR+Z5gwjGxPoMEyt1szMX8BUZpsH+/9SJ2zlC0pTm3P06QOZbkQEziQwtOW\n"
+    "Pj7285ZZUGHCcfb/1dYjJpxUism8p9TAIZnW6UgZ487r612HFJYFfS3bCHnS4Jsk\n"
+    "TsSUg7AuJz7Px46AAKuGJ8CoV9A1GHAq0ngFwph7i6tQIgAxSsniXHz94/JgZimj\n"
+    "5rn10dbXU28TjpXQdYECAwEAAaOCAv8wggL7MB8GA1UdIwQYMBaAFFFo/5CvAgd1\n"
+    "PMzZZWRiohK4WXI7MB0GA1UdDgQWBBSL9RPT/PsKraCvn2/CQsTYR0zL5TApBgNV\n"
+    "HREEIjAggg8qLmhlcm9rdWFwcC5jb22CDWhlcm9rdWFwcC5jb20wDgYDVR0PAQH/\n"
+    "BAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjB1BgNVHR8EbjBs\n"
+    "MDSgMqAwhi5odHRwOi8vY3JsMy5kaWdpY2VydC5jb20vc2hhMi1oYS1zZXJ2ZXIt\n"
+    "ZzYuY3JsMDSgMqAwhi5odHRwOi8vY3JsNC5kaWdpY2VydC5jb20vc2hhMi1oYS1z\n"
+    "ZXJ2ZXItZzYuY3JsMEwGA1UdIARFMEMwNwYJYIZIAYb9bAEBMCowKAYIKwYBBQUH\n"
+    "AgEWHGh0dHBzOi8vd3d3LmRpZ2ljZXJ0LmNvbS9DUFMwCAYGZ4EMAQICMIGDBggr\n"
+    "BgEFBQcBAQR3MHUwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNv\n"
+    "bTBNBggrBgEFBQcwAoZBaHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL0RpZ2lD\n"
+    "ZXJ0U0hBMkhpZ2hBc3N1cmFuY2VTZXJ2ZXJDQS5jcnQwDAYDVR0TAQH/BAIwADCC\n"
+    "AQQGCisGAQQB1nkCBAIEgfUEgfIA8AB2APZclC/RdzAiFFQYCDCUVo7jTRMZM7/f\n"
+    "DC8gC8xO8WTjAAABcrkU+VkAAAQDAEcwRQIgOYrojFSS9pLZWvDxx8LcPfs7G1Tq\n"
+    "3BhrHClAfLoasOMCIQCPeT5wI6V4TGxmLMLIS1fXXt1KevyGWJ7s08jyHRo3kQB2\n"
+    "AFzcQ5L+5qtFRLFemtRW5hA3+9X6R9yhc5SyXub2xw7KAAABcrkU+XcAAAQDAEcw\n"
+    "RQIhALZG0NcmoBZwoTSxRTBzs2QanNJVCuKLFek0l3qxfuY3AiBMPdWgBP/6oyFD\n"
+    "eIKMbI9DwpJSj0SSJwRVZUgoiHLoJzANBgkqhkiG9w0BAQsFAAOCAQEAaRSAbyG8\n"
+    "kJqnb4l8gjFFAOojEZgFeqmaZHJQlsKLfxq6DcNvXmwDGQ/xDmi1GnzjE5wAsjlT\n"
+    "bfAIxUwsPt0uJiMzw9lONcTAWRHd2c1CPrsz/pZivGRo/O560MAotgBta057W4zJ\n"
+    "YUQiqVPUjjhg/5sM5K1ATR4VDqvV1NEWUlMoY1rQogzlFp1z56L4E1KPnXByI9mh\n"
+    "igFuhOsnqa9EkDgQHmBl0YX07XJeGtgvNyvGTmamLkBLdB51ERvd0di6f2piWvOZ\n"
+    "VElwmiwO/IhWSiotO6ZYnYXw2qUyDOeHSKHAXZPqGPoB94bGZB3OqbxYn2DkFiZx\n"
+    "FVgTiv7/jzinqg==\n"
     "-----END CERTIFICATE-----";
 
 static HttpsOTAStatus_t otastatus;
