@@ -1,0 +1,19 @@
+{
+  "name": "ota_mqtt_https_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aedes": "^0.45.2",
+    "axios": "^0.21.1",
+    "chokidar": "^3.5.1",
+    "express": "^4.17.1",
+    "log-timestamp": "^0.3.0"
+  }
+}
