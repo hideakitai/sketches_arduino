@@ -1,3 +1,6 @@
+// Reference page
+// https://github.com/FastLED/FastLED/wiki/Multiple-Controller-Examples#managing-your-own-output
+
 #include "FastLED.h"
 
 #define NUM_LEDS 16
