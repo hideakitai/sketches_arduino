@@ -1,18 +1,30 @@
 #include <FastLED.h>
 
-static constexpr uint8_t PIN_DATA {19};
-static constexpr size_t N_LEDS {12};
-CRGB leds[N_LEDS];
+// FastLED
+static constexpr uint8_t PIN_DATA {32};
+static constexpr size_t N_LEDS {16};
+CRGBArray<N_LEDS> leds;
 
-static constexpr uint8_t CORE_LED_SHOW {0};  // core 1: main app
-static TaskHandle_t task_handle_led_show {0};
-static TaskHandle_t task_handle_main_app {0};
+// FreeRTOS
+static TaskHandle_t handle_main_app {NULL};
+static TaskHandle_t handle_task_led_show {NULL};
+static constexpr uint8_t CORE_TASK_LED_SHOW {0};  // core 1: main app
+static constexpr uint32_t STACK_SIZE {2048};      // bytes
+static constexpr uint32_t PRIORITY {2};           // LOW 0 - 25 HIGH
 
-void task_led_show(void* pvParameters) {
+void isr_task_led_show(void* pvParameters) {
     while (true) {
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);  // wait for the trigger
         FastLED.show();                           // do the show()
-        xTaskNotifyGive(task_handle_main_app);    // notify back to the main app
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        vTaskNotifyGiveFromISR(handle_main_app, &xHigherPriorityTaskWoken);  // notify back to the main app
+    }
+}
+
+void trigger_led_show() {
+    const uint32_t r = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(1));  // check for notification
+    if (r == pdTRUE) {                                              // if isr_task_led_show has done
+        xTaskNotifyGive(handle_task_led_show);                      // trigger the next show() task
     }
 }
 
@@ -23,30 +35,30 @@ void setup() {
     // prepare fastled
     FastLED.addLeds<NEOPIXEL, PIN_DATA>(leds, N_LEDS);
 
-    // create the task
-    xTaskCreatePinnedToCore(task_led_show, "task_led_show", 2048, NULL, 2, &task_handle_led_show, CORE_LED_SHOW);
+    // store the handle of this task
+    handle_main_app = xTaskGetCurrentTaskHandle();
+
+    // create the isr task for fastled show()
+    xTaskCreatePinnedToCore(
+        isr_task_led_show,
+        "isr_task_led_show",
+        STACK_SIZE,
+        NULL,
+        PRIORITY,
+        &handle_task_led_show,
+        CORE_TASK_LED_SHOW);
+
+    xTaskNotifyGive(handle_task_led_show);  // trigger the first show() task
 }
 
 void loop() {
     // change the led color
-    update_led_data();
+    leds.fill_rainbow(uint8_t(float(millis() % 3000) / 3000.f * 255.f));
 
-    // trigger FastLED.show() in 40fps
+    // trigger FastLED.show() in 125fps
     static uint32_t prev_ms = millis();
-    if (millis() >= prev_ms + 25) {
+    if (millis() >= prev_ms + 8) {
         prev_ms = millis();
-
-        if (task_handle_main_app == 0) {                         // if FastLED.show() has done
-            task_handle_main_app = xTaskGetCurrentTaskHandle();  // store the handle of this task
-            xTaskNotifyGive(task_handle_led_show);               // trigger the show() task
-            ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(200));        // wait until show() has done
-            task_handle_main_app = 0;                            // clear task handle
-        }
+        trigger_led_show();
     }
-}
-
-void update_led_data() {
-    float t = (float)millis() / 1000.f;
-    float v = (0.5f * sin(t) + 0.5f) * 255.f;
-    fill_solid(leds, N_LEDS, CRGB(v, v, v));
 }
